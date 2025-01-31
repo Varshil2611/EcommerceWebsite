@@ -48,7 +48,7 @@ const ThankYouPage = () => {
       {/* Contact Info */}
       <div className="mt-8 text-center">
         <p className="text-gray-600">
-          If you have any questions about your order, feel free to <a href="mailto:support@yourstore.com" className="text-blue-500 hover:underline">contact us</a>.
+          If you have any questions about your order or products, feel free to <a href="mailto:support@yourstore.com" className="text-blue-500 hover:underline">contact us</a>.
         </p>
       </div>
     </div>
