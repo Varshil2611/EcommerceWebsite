@@ -1,0 +1,123 @@
+/backend
+  /models
+    User.js
+    Product.js
+    Order.js
+    Cart.js
+  /routes
+    auth.js
+    products.js
+    orders.js
+    users.js
+  /middleware
+    authMiddleware.js
+  server.js
+  .env
+
+
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/ecommerceDB
+JWT_SECRET=your_jwt_secret
+
+const mongoose = require('mongoose');
+
+const productSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  price: { type: Number, required: true },
+  category: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+  stock: { type: Number, required: true },
+}, { timestamps: true });
+
+const Product = mongoose.model('Product', productSchema);
+module.exports = Product;
+
+
+const mongoose = require('mongoose');
+
+const orderSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  products: [{
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+    quantity: { type: Number, required: true },
+    price: { type: Number, required: true },
+  }],
+  shippingAddress: { type: String, required: true },
+  totalPrice: { type: Number, required: true },
+  paymentStatus: { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
+  orderStatus: { type: String, enum: ['pending', 'shipped', 'delivered', 'cancelled'], default: 'pending' },
+}, { timestamps: true });
+
+const Order = mongoose.model('Order', orderSchema);
+module.exports = Order;
+
+
+{
+  "_id": {
+    "$oid": "676a7eb2c8e001e5ba94a212"
+  },
+  "username": "varshil",
+  "email": "varshil@gmail.com",
+  "password": "varshil",
+  "__v": 0
+}
+//i have these structure and want to get these data through api
+app.get('/profile',authController.getCurrentUser); //server.js
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user data', error: error.message });
+  }
+};
+//give me some correction like when user logged in i stored token and email so that it help toretrieve data
+make changes as per and give individual code for each with explanation 
+
+
+
+// models/Order.js
+const mongoose = require('mongoose');
+
+const orderSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // User that placed the order
+  items: [{
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    name: String,
+    price: Number,
+    quantity: Number,
+    size: String,
+    image: String,
+  }],
+  shippingDetails: {
+    name: String,
+    address: String,
+    city: String,
+    postalCode: String,
+    phone: String,  
+  },
+  paymentMethod: String,
+  totalAmount: Number,
+  status: { type: String, default: 'pending' },
+  createdAt: { type: Date, default: Date.now },
+});
+
+module.exports = mongoose.model('Order', orderSchema);
+
+
+i want to display order based on user id 
+
+i have folder structure like 
+ecomm/
+  /frontned
+  /backend
+    /uploads
+      imagename
+and i have stored image name in database so what should i write here so that i can get that image 
+
+i want that whenever any user add product to cart i want a notifcation regarding that details to other user that this user added this item to his cart
