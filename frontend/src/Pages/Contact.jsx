@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import axios from 'axios';
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -18,9 +18,16 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // You can handle form submission here (e.g., send data to an API)
+    
+    try {
+      const response = await axios.post("http://localhost:5000/api/contact", formData);
+      console.log("Submitted Contact Data -", response.data); 
+      } 
+    catch (error) {
+      console.error("Error during registration:", error.response?.data || error.message); 
+    }
     console.log('Form Submitted', formData);
   };
 

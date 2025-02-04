@@ -11,6 +11,7 @@ dotenv.config();
 import * as productController from './Controllers/productController.js';
 import * as authController from './Controllers/authController.js';
 import * as orderController from './Controllers/orderController.js';
+import * as contactController from './Controllers/contactController.js';
 
 // Initialize Express app
 const app = express();
@@ -64,6 +65,9 @@ app.post('/api/products', upload.single('image'), productController.createProduc
 app.put('/api/products/:id', upload.single('image'), productController.updateProduct); 
 app.delete('/api/products/:id', productController.deleteProduct); 
 app.get('/api/products/total', productController.getTotalProducts);
+
+//Contact Routes
+app.post('/api/contact',contactController.ContactUs);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
