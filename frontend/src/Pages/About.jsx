@@ -17,11 +17,7 @@ const About = () => {
             Founded in [Year], our brand began with a simple idea – to create versatile, timeless pieces for people who
             appreciate quality, sustainability, and innovation. What started as a small collection of [clothing types]
             quickly grew into a trusted name in the fashion world.
-          </p>
-          <p className="text-lg text-gray-600 mb-6">
-            At [Your Brand Name], we focus on designs that reflect your lifestyle and personality. From casual wear to
-            evening essentials, our clothing helps you express yourself, all while prioritizing comfort and durability.
-          </p>
+          </p>         
         </div>
 
         {/* Mission and Values Section */}

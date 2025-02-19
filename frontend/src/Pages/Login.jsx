@@ -114,6 +114,8 @@ const Login = () => {
     password: '',
   });
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false); // Loading state
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -124,28 +126,62 @@ const Login = () => {
     });
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Email validation
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is not valid";
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 3) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Returns true if no errors
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      // Send the login request to the backend
-      const response = await axios.post("http://localhost:5000/", formData); // Adjust endpoint
-
-      // Capture the token and userId from the response
-      const { token, userId, email } = response.data; // Adjust the response structure as needed
-
-      // Store the token and userId in localStorage
-      localStorage.setItem("token", token);
-      localStorage.setItem("userId", userId);  // Store userId
-      localStorage.setItem("userEmail", email);  // Optionally store email
-
-      console.log("Login successful, token and userId saved to localStorage");
-
-      // Redirect to the home page
-      navigate("/home");
-    } catch (error) {
-      console.error("Error during login:", error.response?.data || error.message);
+    if (!validateForm()) {
+      return; // Do not proceed if the form is invalid
     }
+
+    // Show the loading effect
+    setIsLoading(true);
+
+    // Simulate a delay (this can be removed when implementing real backend request)
+    setTimeout(async () => {
+      try {
+        // Send the login request to the backend
+        const response = await axios.post("http://localhost:5000/", formData); // Adjust endpoint
+
+        // Capture the token and userId from the response
+        const { token, userId, email } = response.data; // Adjust the response structure as needed
+
+        // Store the token and userId in localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", userId);  // Store userId
+        localStorage.setItem("userEmail", email);  // Optionally store email
+
+        console.log("Login successful, token and userId saved to localStorage");
+
+        // Redirect to the home page
+        navigate("/home");
+      } catch (error) {
+        console.error("Error during login:", error.response?.data || error.message);
+      } finally {
+        // Hide the loading effect after form submission or error
+        setIsLoading(false);
+      }
+    }, 4000); // Simulated delay of 4 seconds
   };
 
   const togglePasswordVisibility = () => {
@@ -153,7 +189,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-1 00">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white border-2 border-black p-10 w-96 shadow-lg text-center">
         <h1 className="text-4xl font-extrabold text-gray-800 mb-8">Login</h1>
         <form onSubmit={handleSubmit}>
@@ -170,6 +206,7 @@ const Login = () => {
                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                 required
               />
+              {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
             </div>
 
             {/* Password Input */}
@@ -190,6 +227,7 @@ const Login = () => {
               >
                 {passwordVisible ? <FaEyeSlash /> : <FaEye />}
               </span>
+              {errors.password && <p className="text-red-500 text-xs">{errors.password}</p>}
             </div>
           </div>
 
@@ -197,9 +235,18 @@ const Login = () => {
           <div className="text-center mt-6">
             <button
               type="submit"
-              className="w-full px-6 py-3 bg-black text-white font-medium rounded-md hover:bg-gray-800"
+              className={`w-full px-6 py-3 bg-black text-white font-medium rounded-md hover:bg-gray-800 ${isLoading ? 'cursor-not-allowed opacity-50' : ''}`}
+              disabled={isLoading}
             >
-              Submit
+              {isLoading ? (
+                <div className="flex justify-center items-center">
+                  {/* Rotating Spinner Animation */}
+                  <div className="w-8 h-8 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-indigo-500"></div>
+                  <span className="ml-3">Loading...</span>
+                </div>
+              ) : (
+                'Submit'
+              )}
             </button>
           </div>
 
