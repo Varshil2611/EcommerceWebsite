@@ -241,131 +241,259 @@
 
 
 
-
-
-
-
-
-
-
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
 
 const EditProductForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
-  // State to store product data
+
   const [product, setProduct] = useState({
-    name: '',
-    price: '',
-    category: '',
-    imageUrl: ''
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+    subCategory: "",
+    sizes: [],
+    bestseller: false,
+    image: null,
   });
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [previewImage, setPreviewImage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch the product details when the component mounts
+  // Fetch existing product
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/products/${id}`);
-        setProduct(response.data);
-        console.log(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError('Error fetching product data');
-        setLoading(false);
+        const data = response.data;
+        setProduct({
+          ...data,
+          sizes: data.sizes || [], // Ensure sizes is always an array
+        });
+        // Show existing image as preview
+        if (data.image) {
+          setPreviewImage(`http://localhost:5000/uploads/${data.image}`);
+        }
+      } catch (error) {
+        console.error("Error fetching product:", error);
       }
     };
-
     fetchProduct();
   }, [id]);
 
-  // Handle form input changes
+  // Generic handleChange for text inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProduct({ ...product, [name]: value });
+    setProduct((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  // Handle the form submission to update the product
+  // Handle image selection
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setProduct((prev) => ({
+      ...prev,
+      image: file,
+    }));
+    setPreviewImage(URL.createObjectURL(file));
+  };
+
+  // Handle checkbox for bestseller
+  const handleCheckboxChange = (e) => {
+    setProduct((prev) => ({
+      ...prev,
+      bestseller: e.target.checked,
+    }));
+  };
+
+  // Handle comma-separated sizes
+  const handleSizesChange = (e) => {
+    setProduct((prev) => ({
+      ...prev,
+      sizes: e.target.value.split(",").map((size) => size.trim()),
+    }));
+  };
+
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const formData = new FormData();
-      formData.append('name', product.name);
-      formData.append('price', product.price);
-      formData.append('category', product.category);
-      if (product.imageUrl) {
-        formData.append('image', product.imageUrl);
+      formData.append("name", product.name);
+      formData.append("description", product.description);
+      formData.append("price", product.price);
+      formData.append("category", product.category);
+      formData.append("subCategory", product.subCategory);
+      formData.append("sizes", JSON.stringify(product.sizes));
+      formData.append("bestseller", product.bestseller);
+
+      if (product.image instanceof File) {
+        formData.append("image", product.image);
       }
 
-      const response = await axios.put(`http://localhost:5000/api/products/${id}`, formData);
-      navigate(`/admin/products`); 
+      await axios.put(`http://localhost:5000/api/products/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      alert("Product updated successfully!");
+      navigate("/admin/products");
     } catch (error) {
-      setError('Error updating product');
+      console.error("Error updating product:", error);
+      alert("Failed to update product.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  
-  if (loading) return <div>Loading...</div>;
-
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Edit Product</h1>
-      {error && <div className="text-red-500">{error}</div>}
+    <div className="max-w-4xl mx-auto p-4 bg-white rounded shadow-lg mt-8">
+      <h2 className="text-2xl font-bold mb-6">Edit Product</h2>
+
       <form onSubmit={handleSubmit} encType="multipart/form-data">
+        {/* Name & Description */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Product Name</label>
+            <input
+              type="text"
+              name="name"
+              value={product.name}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Description</label>
+            <textarea
+              name="description"
+              rows="4"
+              value={product.description}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded"
+            ></textarea>
+          </div>
+        </div>
+
+        {/* Price & Image */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Price</label>
+            <input
+              type="number"
+              name="price"
+              value={product.price}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Product Image</label>
+            {previewImage && (
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="w-24 h-24 object-cover mb-2 rounded"
+              />
+            )}
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+        </div>
+
+        {/* Category & Subcategory */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Category</label>
+            <select
+              name="category"
+              value={product.category}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded"
+            >
+              <option value="">Select a Category</option>
+              <option value="Men">Men</option>
+              <option value="Women">Women</option>
+              <option value="Kids">Kids</option>
+            </select>
+          </div>
+
+          {product.category && (
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Subcategory</label>
+              <select
+                name="subCategory"
+                value={product.subCategory}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border border-gray-300 rounded"
+              >
+                <option value="">Select a Subcategory</option>
+                <option value="Topwear">Topwear</option>
+                <option value="Bottomwear">Bottomwear</option>
+                <option value="Winterwear">Winterwear</option>
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Sizes */}
         <div className="mb-4">
-          <label htmlFor="name" className="block">Product Name</label>
+          <label className="block text-gray-700 font-medium mb-2">
+            Sizes (comma separated)
+          </label>
           <input
             type="text"
-            id="name"
-            name="name"
-            value={product.name}
-            onChange={handleChange}
-            className="border rounded p-2 w-full"
+            name="sizes"
+            value={product.sizes.join(", ")}
+            onChange={handleSizesChange}
+            className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
+
+        {/* Bestseller */}
         <div className="mb-4">
-          <label htmlFor="price" className="block">Price</label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            value={product.price}
-            onChange={handleChange}
-            className="border rounded p-2 w-full"
-          />
+          <label className="flex items-center text-gray-700 font-medium">
+            <input
+              type="checkbox"
+              name="bestseller"
+              checked={product.bestseller}
+              onChange={handleCheckboxChange}
+              className="mr-2"
+            />
+            Bestseller
+          </label>
         </div>
-        <div className="mb-4">
-          <label htmlFor="category" className="block">Category</label>
-          <input
-            type="text"
-            id="category"
-            name="category"
-            value={product.category}
-            onChange={handleChange}
-            className="border rounded p-2 w-full"
-          />
-        </div>
-        <img src={product.image} alt={product.name} className="w-30 h-20  object-cover" />
-        <div className="mb-4">
-          <label htmlFor="imageUrl" className="block">Product Image</label>
-          <input
-            type="file"
-            id="imageUrl"
-            name="imageUrl"
-            onChange={(e) => setProduct({ ...product, imageUrl: e.target.files[0] })}
-            className="border rounded p-2 w-full"
-          />
-        </div>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">Update Product</button>
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2 bg-gray-800 text-white font-bold rounded hover:bg-gray-900 transition-colors"
+        >
+          {loading ? "Updating..." : "Update Product"}
+        </button>
       </form>
     </div>
   );
 };
 
 export default EditProductForm;
+

@@ -112,7 +112,7 @@ export const getTotalProducts = async (req, res) => {
     const totalProducts = await Product.countDocuments();
     res.json({ totalProducts });
   } catch (error) {
-    console.error("Error fetching total products:", error);
     res.status(500).json({ message: "Error fetching total products", error: error.message });
   }
 };
+

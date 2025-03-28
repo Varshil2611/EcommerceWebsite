@@ -73,7 +73,24 @@ export const getUserOrders = async (req, res) => {
 export const getAllOrders = async (req, res) => {
   try { 
     const orders = await Order.find({}).sort({ createdAt: -1 });
-    res.json({ orders });
+
+    const totalOrders = await Order.countDocuments(); // Count total orders
+
+    // Calculate total revenue by summing up all totalAmount values
+    const totalRevenue = await Order.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$totalAmount" } // Summing all totalAmount
+        }
+      }
+    ]);
+
+    res.json({ 
+      totalOrders, 
+      totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].totalRevenue : 0, 
+      orders 
+    });
   } 
   catch (error) {
     res.status(500).json({ message: 'Error fetching orders', error: error.message });
@@ -120,5 +137,32 @@ export const getUserProfile = async (req, res) => {
   } catch (error) {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getOrdersStatusSummary = async (req, res) => {
+  try {
+    const statusSummary = await Order.aggregate([
+      {
+        $match: { status: { $exists: true, $ne: null } } // Ensure status exists and is not null
+      },
+      {
+        $group: {
+          _id: "$status", // Group by status field in orders collection
+          count: { $sum: 1 } // Count orders per status
+        }
+      },
+      {
+        $project: {
+          status: "$_id",
+          count: 1,
+          _id: 0
+        }
+      }
+    ]);
+
+    res.json({ statusSummary });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching order status summary", error: error.message });
   }
 };

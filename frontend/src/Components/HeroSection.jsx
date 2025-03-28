@@ -22,7 +22,7 @@ const HeroSection = () => {
           {/* Image Section */}
           <div className="sm:w-1/2 mt-12 sm:mt-0">
             <img
-              src="https://plus.unsplash.com/premium_photo-1683141052679-942eb9e77760?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c2hvcHBpbmd8ZW58MHx8MHx8fDA%3D"
+              src={assets.about_img}
               alt="Store Image"
               className="rounded-lg shadow-lg object-cover w-full h-full"
             />

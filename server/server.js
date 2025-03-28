@@ -49,6 +49,8 @@ app.post('/orders/placeorder',orderController.createOrder);
 app.get('/orders/:userId',orderController.getUserOrders);
 app.get('/api/orders',orderController.getAllOrders);
 app.patch('/api/orders/:orderId/status',orderController.StatusChange);
+app.get("/api/orders/status-overview", orderController.getOrdersStatusSummary);
+
 
 
 //User Routes
@@ -60,11 +62,12 @@ app.get('/userprofile/profile/:email',orderController.getUserProfile);
 
 // Product Routes
 app.get('/api/products', productController.getAllProducts); 
+app.get('/api/products/total', productController.getTotalProducts);
 app.get('/api/products/:id', productController.getProductById); 
 app.post('/api/products', upload.single('image'), productController.createProduct); 
 app.put('/api/products/:id', upload.single('image'), productController.updateProduct); 
 app.delete('/api/products/:id', productController.deleteProduct); 
-app.get('/api/products/total', productController.getTotalProducts);
+
 
 //Contact Routes
 app.post('/api/contact',contactController.ContactUs);
