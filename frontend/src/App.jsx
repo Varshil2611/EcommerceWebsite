@@ -22,6 +22,8 @@ import Profile from './Pages/Profile';
 import PrivateRoute from './Context/PrivateRoute';  
 import ThankYouPage from './Pages/ThankYouPage';
 import TestProduct from './Pages/TestProduct';
+import Chatbot from './Pages/Chatbot';  
+import NotFound from './Pages/NotFound';
 
 const AdminLayout = ({ children }) => {
   return (
@@ -67,8 +69,11 @@ const App = () => {
         <Route path="/admin/*" element={<AdminLayout><AdminRoutes /></AdminLayout>} />
 
         {/* Catch-all route for invalid paths */}
-        <Route path='*' element={<div>404 Page Not Found</div>} />
+        <Route path='*' element={<NotFound/>} />
       </Routes>
+
+      {/* ✅ Chatbot appears on all pages except admin routes */}
+      {!isAdminRoute && <Chatbot />}
     </ShopContextProvider>
   );
 };
