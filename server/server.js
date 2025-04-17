@@ -5,6 +5,7 @@ import path from 'path';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
+import stripeRoutes from './Controllers/orderController.js';
 
 dotenv.config(); 
 // Controllers
@@ -26,7 +27,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('uploads'));
 app.use(bodyParser.json());
-
+app.use('/stripe', stripeRoutes);
 
 mongoose.connect('mongodb://localhost:27017/Ecommerce_DB')
   .then(() => console.log('MongoDB connected'))

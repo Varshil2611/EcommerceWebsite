@@ -239,8 +239,6 @@
 // export default EditProductForm;
 
 
-
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
@@ -263,17 +261,24 @@ const EditProductForm = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch existing product
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/products/${id}`);
         const data = response.data;
+
         setProduct({
-          ...data,
-          sizes: data.sizes || [], // Ensure sizes is always an array
+          name: data.name || "",
+          description: data.description || "",
+          price: data.price || "",
+          category: data.category || "",
+          subCategory: data.subCategory || "",
+          sizes: data.sizes || [],
+          bestseller: data.bestseller || false,
+          image: null, // Will handle image separately
         });
-        // Show existing image as preview
+
+        // Show existing image
         if (data.image) {
           setPreviewImage(`http://localhost:5000/uploads/${data.image}`);
         }
@@ -281,10 +286,10 @@ const EditProductForm = () => {
         console.error("Error fetching product:", error);
       }
     };
+
     fetchProduct();
   }, [id]);
 
-  // Generic handleChange for text inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProduct((prev) => ({
@@ -293,7 +298,6 @@ const EditProductForm = () => {
     }));
   };
 
-  // Handle image selection
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setProduct((prev) => ({
@@ -303,7 +307,6 @@ const EditProductForm = () => {
     setPreviewImage(URL.createObjectURL(file));
   };
 
-  // Handle checkbox for bestseller
   const handleCheckboxChange = (e) => {
     setProduct((prev) => ({
       ...prev,
@@ -311,15 +314,13 @@ const EditProductForm = () => {
     }));
   };
 
-  // Handle comma-separated sizes
   const handleSizesChange = (e) => {
     setProduct((prev) => ({
       ...prev,
-      sizes: e.target.value.split(",").map((size) => size.trim()),
+      sizes: e.target.value.split(",").map((s) => s.trim()),
     }));
   };
 
-  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -339,7 +340,9 @@ const EditProductForm = () => {
       }
 
       await axios.put(`http://localhost:5000/api/products/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       alert("Product updated successfully!");
@@ -456,9 +459,7 @@ const EditProductForm = () => {
 
         {/* Sizes */}
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Sizes (comma separated)
-          </label>
+          <label className="block text-gray-700 font-medium mb-2">Sizes (comma separated)</label>
           <input
             type="text"
             name="sizes"
@@ -496,4 +497,3 @@ const EditProductForm = () => {
 };
 
 export default EditProductForm;
-

@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Home from './Pages/Home';
 import Cart from './Pages/Cart';
@@ -38,17 +41,20 @@ const AdminLayout = ({ children }) => {
 
 const App = () => {
   const location = useLocation();
-
-  // Check if the route is an admin route
   const isAdminRoute = location.pathname.startsWith('/admin');
+
+  // ✅ Initialize AOS
+  useEffect(() => {
+    AOS.init({
+      duration: 800, // animation duration   // only animate once
+    });
+  }, []);
 
   return (
     <ShopContextProvider>
-      {/* Render Navbar for non-admin routes */}
       {!isAdminRoute && <Navbar />} 
 
       <Routes>
-        {/* Public Routes */}
         <Route path='/' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/home' element={<Home />} />
@@ -59,38 +65,28 @@ const App = () => {
         <Route path='/product/:productId' element={<ProductDetail />} />
         <Route path='/testproduct' element={<TestProduct />} />
         
-        {/* Protected Routes */}
         <Route path='/checkout' element={<PrivateRoute><Checkout /></PrivateRoute>} />
         <Route path='/orders' element={<PrivateRoute><Orders /></PrivateRoute>} />
         <Route path='/profile' element={<PrivateRoute><Profile /></PrivateRoute>} />
         <Route path='/thankyou' element={<PrivateRoute><ThankYouPage /></PrivateRoute>} />
         
-        {/* Admin Routes */}
         <Route path="/admin/*" element={<AdminLayout><AdminRoutes /></AdminLayout>} />
 
-        {/* Catch-all route for invalid paths */}
-        <Route path='*' element={<NotFound/>} />
+        <Route path='*' element={<NotFound />} />
       </Routes>
 
-      {/* ✅ Chatbot appears on all pages except admin routes */}
       {!isAdminRoute && <Chatbot />}
     </ShopContextProvider>
   );
 };
 
-// Admin Routes Component
 const AdminRoutes = () => {
   return (
     <Routes>
-      {/* Admin Dashboard */}
       <Route path="dashboard" element={<AdminDashboard />} />
-      
-      {/* Product Management Routes */}
       <Route path="products" element={<ProductManagement />} />
       <Route path='/products/add' element={<AddProductForm />} />
       <Route path='/products/edit/:id' element={<EditProductForm />} />
-      
-      {/* Order Management Routes */}
       <Route path="orders" element={<OrderManagement />} />
     </Routes>
   );

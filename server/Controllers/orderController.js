@@ -1,10 +1,13 @@
+import express from 'express';
+import Stripe from 'stripe';
 import Order from '../Models/orderModel.js';
 import User from '../Models/userModel.js';  
+import Counter from '../Models/counterModel.js'; 
 
 export const createOrder = async (req, res) => {
   try {
     const { user, items, shippingDetails, paymentMethod, totalAmount } = req.body;
-    
+
     if (!user || !items || !shippingDetails || !paymentMethod || !totalAmount) {
       return res.status(400).json({ message: 'All fields are required' });
     }
@@ -13,8 +16,22 @@ export const createOrder = async (req, res) => {
     if (!existingUser) {
       return res.status(404).json({ message: 'User not found' });
     }
-  
+
+    // Check if Counter is retrieved correctly
+    const counter = await Counter.findOneAndUpdate(
+      { name: 'orderId' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+
+    if (!counter) {
+      return res.status(500).json({ message: 'Counter not found or failed to update' });
+    }
+
+    console.log('Counter after update:', counter); // Debugging log
+
     const newOrder = new Order({
+      orderId: counter.seq, 
       user,
       items: items.map(item => ({
         productId: item.productId,
@@ -22,21 +39,21 @@ export const createOrder = async (req, res) => {
         price: item.price,
         quantity: item.quantity,
         size: item.size,
-        image: item.image, 
+        image: item.image,
       })),
       shippingDetails,
       paymentMethod,
       totalAmount,
     });
-  
+
     const savedOrder = await newOrder.save();
-   
+
     res.status(200).json({
       message: 'Order placed successfully!',
       order: savedOrder,
     });
   } catch (error) {
-    console.error('Error creating order:', error);  
+    console.error('Error creating order:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
@@ -65,7 +82,7 @@ export const getUserOrders = async (req, res) => {
       orders,
     });
   } catch (error) {
-    console.error('Error fetching orders:', error);  // Log the error for debugging
+    console.error('Error fetching orders:', error); 
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
@@ -166,3 +183,47 @@ export const getOrdersStatusSummary = async (req, res) => {
     res.status(500).json({ message: "Error fetching order status summary", error: error.message });
   }
 };
+
+
+const router = express.Router();
+const stripe = new Stripe('sk_test_51REqJ6EIwWeSNeXGgWC0TNKqJjY5FLr6dE4ZESmU4szKsAMvI30PtzRWJr3QRlWIxcKINWRKYUsFZwIHd0z43anY00pP4A9JZV');
+
+router.post('/create-checkout-session', async (req, res) => {
+  try {
+    const { items } = req.body;
+
+    if (!items || !Array.isArray(items)) {
+      return res.status(400).json({ error: 'Invalid items in request' });
+    }
+
+    console.log("Items from frontend:", items); // Debug
+
+    const line_items = items.map(item => ({
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: item.name || 'No Name',
+        },
+        unit_amount: Math.round(item.price * 100), // Convert to cents
+      },
+      quantity: item.quantity,
+    }));
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items,
+      mode: 'payment',
+      success_url: 'http://localhost:5173/thankyou',
+      cancel_url: 'http://localhost:5173/checkout',
+    });
+
+    console.log("Stripe session created:", session.url);
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error("Stripe session error:", error); // 💥 This is what we want!
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+
+
+export default router;

@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import AOS from 'aos';
+import 'aos/dist/aos.css'; // Import the AOS CSS
 
 const About = () => {
+  // Initialize AOS
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, // Animation duration
+      once: true, // Animation happens only once
+    });
+  }, []);
+
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-extrabold text-center mb-8 text-gray-800">About Us</h1>
+      <h1 className="text-4xl font-extrabold text-center mb-8 text-gray-800" data-aos="fade-up">About Us</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 gap-12">
         {/* Brand Story Section */}
-        <div className="flex flex-col justify-center">
+        <div className="flex flex-col justify-center" data-aos="fade-up">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Story</h2>
           <p className="text-lg text-gray-600 mb-6">
             Welcome to [Your Brand Name], where fashion meets comfort. We are passionate about providing high-quality,
@@ -21,7 +31,7 @@ const About = () => {
         </div>
 
         {/* Mission and Values Section */}
-        <div className="flex flex-col justify-center">
+        <div className="flex flex-col justify-center" data-aos="fade-up">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Mission</h2>
           <p className="text-lg text-gray-600 mb-6">
             Our mission is to inspire and empower individuals through fashion that blends effortlessly with every lifestyle.
@@ -37,24 +47,24 @@ const About = () => {
       </div>
 
       <div className="mt-12 text-center">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Why Choose Us?</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-4" data-aos="zoom-in">Why Choose Us?</h2>
         <div className="flex flex-wrap justify-center gap-8">
           {/* Key Points */}
-          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md">
+          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md" data-aos="flip-left">
             <h3 className="text-xl font-semibold text-gray-800 mb-2">Sustainable Fashion</h3>
             <p className="text-gray-600">
               Our pieces are crafted with sustainability at the forefront. We source eco-friendly materials and work with
               ethical manufacturers to create fashion you can feel good about.
             </p>
           </div>
-          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md">
+          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md" data-aos="flip-right">
             <h3 className="text-xl font-semibold text-gray-800 mb-2">Timeless Styles</h3>
             <p className="text-gray-600">
               Our collections feature versatile, timeless designs that never go out of style. Perfect for layering and
               mixing and matching.
             </p>
           </div>
-          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md">
+          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md" data-aos="flip-up">
             <h3 className="text-xl font-semibold text-gray-800 mb-2">Quality Materials</h3>
             <p className="text-gray-600">
               We use only the finest fabrics to ensure your clothes feel as good as they look. Quality and comfort are
@@ -65,23 +75,23 @@ const About = () => {
       </div>
 
       <div className="mt-12 text-center">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Values</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-4" data-aos="fade-up">Our Values</h2>
         <div className="flex flex-wrap justify-center gap-8">
           {/* Values */}
-          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md">
+          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md" data-aos="fade-right">
             <h3 className="text-xl font-semibold text-gray-800 mb-2">Empowerment</h3>
             <p className="text-gray-600">
               We believe in empowering individuals by providing clothing that boosts confidence and promotes self-expression.
             </p>
           </div>
-          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md">
+          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md" data-aos="fade-left">
             <h3 className="text-xl font-semibold text-gray-800 mb-2">Creativity</h3>
             <p className="text-gray-600">
               Creativity is at the heart of everything we do. We’re constantly innovating and pushing boundaries to deliver
               fresh, exciting designs.
             </p>
           </div>
-          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md">
+          <div className="w-64 text-center bg-gray-50 p-6 rounded-lg shadow-md" data-aos="fade-up">
             <h3 className="text-xl font-semibold text-gray-800 mb-2">Sustainability</h3>
             <p className="text-gray-600">
               Sustainability guides our entire process, from sourcing eco-friendly materials to minimizing waste in production.

@@ -67,11 +67,11 @@ const Orders = () => {
             return (
               <div
                 key={order._id}
-                className="bg-white shadow-lg rounded-lg p-4 border border-gray-300 hover:shadow-xl transition-all duration-300"
+                className="bg-white shadow-xl rounded-lg p-4 border border-gray-300 hover:shadow-xl transition-all duration-300"
               >
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-sm font-semibold text-gray-800">
-                    Order ID: {order._id}
+                    Order ID: {order.orderId}
                   </span>
                   <span className="text-xs text-gray-500">
                     {new Date(order.createdAt).toLocaleDateString()}

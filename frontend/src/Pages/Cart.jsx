@@ -45,7 +45,7 @@ const Cart = () => {
                   className="border rounded-lg p-4 flex flex-col md:flex-row items-center gap-4 bg-white shadow-sm"
                 >
                   <img
-                    src={item.image[0]}
+                    src={Array.isArray(item.image) ? item.image[0] : item.image}
                     alt={item.name}
                     className="w-24 h-24 object-cover rounded"
                   />

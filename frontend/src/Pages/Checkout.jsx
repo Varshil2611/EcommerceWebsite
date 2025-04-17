@@ -55,46 +55,51 @@ const CheckoutPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    debugger;
+  
     const orderData = {
-      user: user.user._id,  
-      items: cart.map(item => ({  
+      user: user.user._id,
+      items: cart.map(item => ({
         productId: item._id,
         name: item.name,
         price: item.price,
         quantity: item.quantity,
         size: item.size,
-        image: item.image[0], 
+        image: item.image[0],
       })),
-      shippingDetails: shippingDetails, 
-      paymentMethod: paymentMethod,  
-      totalAmount: total,      
+      shippingDetails,
+      paymentMethod,
+      totalAmount: total,
     };
-
-    console.log("Order Data : ",orderData);
-    console.log("Cart Data :",cart);
-
+  
     try {
-      const response = await axios.post('http://localhost:5000/orders/placeorder', orderData);
-      console.log("after response", response);
-      if (response.status === 200) {
-        setShowSuccessNotification(true);  
-        console.log(response.data);  
-
-        // Navigate to Thank You page after 2 seconds
-        setTimeout(() => {
-          setShowSuccessNotification(false);  
-          navigate('/thankyou');  // Navigate to the Thank You page
-        }, 2000);  
+      if (paymentMethod === 'cash') {
+        const response = await axios.post('http://localhost:5000/orders/placeorder', orderData);
+        if (response.status === 200) {
+          setShowSuccessNotification(true);
+          setTimeout(() => {
+            setShowSuccessNotification(false);
+            navigate('/thankyou');
+          }, 2000);
+        }
+      } else if (paymentMethod === 'paypal') {
+        const stripeRes = await axios.post('http://localhost:5000/stripe/create-checkout-session', {
+          items: orderData.items,
+          userId: orderData.user,
+          shippingDetails: orderData.shippingDetails,
+          totalAmount: orderData.totalAmount
+        });
+        window.location.href = stripeRes.data.url;
+      } else {
+        alert("Please select a valid payment method.");
       }
     } catch (error) {
-      console.error('Error placing order:', error);
-      alert('Failed to place order');
+      console.error('Error processing payment:', error);
+      alert('Failed to process payment');
     } finally {
       setIsSubmitting(false);
     }
   };
+  
 
   return (
     <div className="container mx-auto px-4 py-8">
