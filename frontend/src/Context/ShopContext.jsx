@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-
+import API from "../api/axios.js";
 export const ShopContext = createContext({
   products: [],
   cart: [],
@@ -14,7 +14,6 @@ export const ShopContext = createContext({
 const ShopContextProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState(() => {
-    
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
@@ -25,8 +24,8 @@ const ShopContextProvider = ({ children }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/products"); 
-        const data = await response.json();
+        const response = await API.get("/products");
+        const data = await response.data;
         setProducts(data);
       } catch (err) {
         setError("Failed to fetch products");
@@ -39,25 +38,21 @@ const ShopContextProvider = ({ children }) => {
     fetchProducts();
   }, []);
 
-  
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  
   const addToCart = (product, selectedSize, quantity) => {
     setCart((prevCart) => {
       const existingItemIndex = prevCart.findIndex(
-        (item) => item._id === product._id && item.size === selectedSize
+        (item) => item._id === product._id && item.size === selectedSize,
       );
 
       if (existingItemIndex !== -1) {
-        
         const updatedCart = [...prevCart];
         updatedCart[existingItemIndex].quantity += parseInt(quantity);
         return updatedCart;
       } else {
-        
         return [
           ...prevCart,
           { ...product, size: selectedSize, quantity: parseInt(quantity) },
@@ -68,28 +63,28 @@ const ShopContextProvider = ({ children }) => {
 
   const removeFromCart = (productId, size) => {
     setCart((prevCart) =>
-      prevCart.filter((item) => !(item._id === productId && item.size === size))
+      prevCart.filter(
+        (item) => !(item._id === productId && item.size === size),
+      ),
     );
   };
 
-  
   const updateQuantity = (productId, size, newQuantity) => {
     if (newQuantity < 1) return;
     setCart((prevCart) =>
       prevCart.map((item) =>
         item._id === productId && item.size === size
           ? { ...item, quantity: parseInt(newQuantity) }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
   const clearCart = () => {
-    setCart([]); 
-    localStorage.removeItem("cart"); 
+    setCart([]);
+    localStorage.removeItem("cart");
   };
 
-  
   const value = {
     products,
     cart,
@@ -103,9 +98,7 @@ const ShopContextProvider = ({ children }) => {
     error,
   };
 
-  return (
-    <ShopContext.Provider value={value}>{children}</ShopContext.Provider>
-  );
+  return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
 };
 
 export default ShopContextProvider;

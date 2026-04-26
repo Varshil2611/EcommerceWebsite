@@ -1,4 +1,3 @@
-import React from 'react'
 import HeroSection from '../Components/HeroSection'
 import LatestCollection from '../Components/LatestCollection'
 import BestsellerSection from '../Components/BestSellerSection'

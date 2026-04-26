@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
+import API from '../api/axios';
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/orders')
+    API.get('/orders')
       .then(response => {
         setOrders(response.data.orders);
         setLoading(false);
@@ -18,7 +18,7 @@ const OrderManagement = () => {
   }, []);
 
   const handleStatusChange = (orderId, newStatus) => {
-    axios.patch(`http://localhost:5000/api/orders/${orderId}/status`, { status: newStatus })
+    API.patch(`/orders/${orderId}/status`, { status: newStatus })
       .then(() => {
         setOrders(orders.map(order =>
           order._id === orderId ? { ...order, status: newStatus } : order

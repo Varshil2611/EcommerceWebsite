@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import API from "../api/axios";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -25,7 +25,7 @@ const Register = () => {
     e.preventDefault(); // Prevent page refresh
 
     try {
-      const response = await axios.post("http://localhost:5000/register", formData);
+      const response = await API.post("/register", formData);
       console.log("Submitted Register Data -", response.data); 
       navigate('/');
       

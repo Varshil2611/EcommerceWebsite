@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import {
   FaTruck,
   FaCheckCircle,
@@ -12,6 +11,7 @@ import {
   FaLocationArrow,
   FaPhoneSquareAlt,
 } from "react-icons/fa";
+import API from "../api/axios";
 
 const Orders = () => {
   const [userOrders, setUserOrders] = useState([]);
@@ -22,11 +22,10 @@ const Orders = () => {
 
   useEffect(() => {
     if (userId) {
-      axios
-        .get(`http://localhost:5000/orders/${userId}`)
+      API.get(`/orders/${userId}`)
         .then((response) => {
           const sortedOrders = response.data.orders.sort(
-            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
           );
           setUserOrders(sortedOrders);
           setLoading(false);
@@ -144,12 +143,12 @@ const Orders = () => {
                         order.status === "Shipped"
                           ? "bg-blue-100 text-blue-800"
                           : order.status === "Delivered"
-                          ? "bg-green-100 text-green-800"
-                          : order.status === "Pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : order.status === "Canceled" // Styling for Canceled status
-                          ? "bg-red-100 text-red-800"
-                          : ""
+                            ? "bg-green-100 text-green-800"
+                            : order.status === "Pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : order.status === "Canceled" // Styling for Canceled status
+                                ? "bg-red-100 text-red-800"
+                                : ""
                       }`}
                     >
                       {order.status}

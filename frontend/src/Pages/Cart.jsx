@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { ShopContext } from '../Context/ShopContext';
 import { useNavigate } from 'react-router-dom';
 import { FaTrashAlt, FaMinus, FaPlus, FaArrowRight } from 'react-icons/fa';

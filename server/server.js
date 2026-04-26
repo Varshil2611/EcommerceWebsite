@@ -1,79 +1,70 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import multer from 'multer';
-import path from 'path';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import dotenv from 'dotenv';
-import stripeRoutes from './Controllers/orderController.js';
+import express from "express";
+import mongoose from "mongoose";
+import multer from "multer";
+import cors from "cors";
+import dotenv from "dotenv";
+import cloudinary from "./Config/cloudinary.js";
+import connectDB from "./Config/databaseConnection.js";
 
-dotenv.config(); 
+dotenv.config();
+
 // Controllers
-import * as productController from './Controllers/productController.js';
-import * as authController from './Controllers/authController.js';
-import * as orderController from './Controllers/orderController.js';
-import * as contactController from './Controllers/contactController.js';
+import * as productController from "./Controllers/productController.js";
+import * as authController from "./Controllers/authController.js";
+import * as orderController from "./Controllers/orderController.js";
+import * as contactController from "./Controllers/contactController.js";
 
-// Initialize Express app
 const app = express();
 
-
-// Serve images from the 'uploads' folder
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-app.use(cors());
-
 // Middleware
-app.use(cors()); 
+app.use(cors());
 app.use(express.json());
-app.use(express.static('uploads'));
-app.use(bodyParser.json());
-app.use('/stripe', stripeRoutes);
 
-mongoose.connect('mongodb://localhost:27017/Ecommerce_DB')
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.log('MongoDB connection error:', err));
+// MongoDB
+connectDB();
 
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); 
-  },
-});
-
+// Use memory storage
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-//Orders Routes
-app.post('/orders/placeorder',orderController.createOrder);
-app.get('/orders/:userId',orderController.getUserOrders);
-app.get('/api/orders',orderController.getAllOrders);
-app.patch('/api/orders/:orderId/status',orderController.StatusChange);
-app.get("/api/orders/status-overview", orderController.getOrdersStatusSummary);
+// ---------------- ROUTES ---------------- //
 
+//Orders
+app.post("/api/orders/placeorder", orderController.createOrder);
+app.get("/api/orders/status-overview", orderController.getOrdersStatusSummary); // 👈 moved UP
+app.get("/api/orders", orderController.getAllOrders);
+app.get("/api/orders/:userId", orderController.getUserOrders);            // 👈 dynamic LAST
+app.patch("/api/orders/:orderId/status", orderController.StatusChange);
 
+// Users
+app.post("/api/register", authController.registerUser);
+app.post("/api/", authController.loginUser);
+app.get("/api/profile/:email", authController.getCurrentUser);
+app.get("/api/userprofile/profile/:email", orderController.getUserProfile);
 
-//User Routes
-app.post('/register',authController.registerUser);
-app.post('/', authController.loginUser); 
-app.get('/profile/:email',authController.getCurrentUser);
-app.get('/userprofile/profile/:email',orderController.getUserProfile);
+// Products
+app.get("/api/products", productController.getAllProducts);
+app.get("/api/products/total", productController.getTotalProducts);
+app.get("/api/products/:id", productController.getProductById);
 
+app.post(
+  "/api/products",
+  upload.single("image"),
+  productController.createProduct,
+);
 
-// Product Routes
-app.get('/api/products', productController.getAllProducts); 
-app.get('/api/products/total', productController.getTotalProducts);
-app.get('/api/products/:id', productController.getProductById); 
-app.post('/api/products', upload.single('image'), productController.createProduct); 
-app.put('/api/products/:id', upload.single('image'), productController.updateProduct); 
-app.delete('/api/products/:id', productController.deleteProduct); 
+app.put(
+  "/api/products/:id",
+  upload.single("image"),
+  productController.updateProduct,
+);
 
+app.delete("/api/products/:id", productController.deleteProduct);
 
-//Contact Routes
-app.post('/api/contact',contactController.ContactUs);
+// Contact
+app.post("/api/contact", contactController.ContactUs);
 
-// Start the server
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

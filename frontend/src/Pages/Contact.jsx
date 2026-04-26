@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
+import API from '../api/axios';
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -22,7 +22,7 @@ const Contact = () => {
     e.preventDefault();
     
     try {
-      const response = await axios.post("http://localhost:5000/api/contact", formData);
+      const response = await API.post("/api/contact", formData);
       console.log("Submitted Contact Data -", response.data); 
       } 
     catch (error) {

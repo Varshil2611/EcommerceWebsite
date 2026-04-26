@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import OrderStatusChart from "../ChartPages/OrderStatusChart";
+import API from "../api/axios";
 
 const AdminDashboard = () => {
   const [totalProducts, setTotalProducts] = useState(0);
@@ -8,25 +8,33 @@ const AdminDashboard = () => {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [statusSummary, setStatusSummary] = useState([]);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const productResponse = await axios.get("http://localhost:5000/api/products/total");
-        setTotalProducts(productResponse.data.totalProducts);
+useEffect(() => {
+  const fetchDashboardData = async () => {
+    try {
+      const productResponse = await API.get("/products/total");
+      setTotalProducts(productResponse.data.totalProducts);
+    } catch (error) {
+      console.error("❌ /products/total failed:", error.response?.data);
+    }
 
-        const orderResponse = await axios.get("http://localhost:5000/api/orders");
-        setTotalOrders(orderResponse.data.totalOrders);
-        setTotalRevenue(orderResponse.data.totalRevenue);
+    try {
+      const orderResponse = await API.get("/orders");
+      setTotalOrders(orderResponse.data.totalOrders);
+      setTotalRevenue(orderResponse.data.totalRevenue);
+    } catch (error) {
+      console.error("❌ /orders failed:", error.response?.data);
+    }
 
-        const statusResponse = await axios.get("http://localhost:5000/api/orders/status-overview");
-        setStatusSummary(statusResponse.data.statusSummary || []);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      }
-    };
+    try {
+      const statusResponse = await API.get("/orders/status-overview");
+      setStatusSummary(statusResponse.data.statusSummary || []);
+    } catch (error) {
+      console.error("❌ /orders/status-overview failed:", error.response?.data);
+    }
+  };
 
-    fetchDashboardData();
-  }, []);
+  fetchDashboardData();
+}, []);
 
   return (
     <div className="p-4 md:p-6 lg:p-8">

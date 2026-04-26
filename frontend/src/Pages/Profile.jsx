@@ -1,30 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-
+import { useEffect, useState } from "react";
+import API from "../api/axios.js";
 const Profile = () => {
-  const userEmail = localStorage.getItem('userEmail'); // Get the email from localStorage
-  const [user, setUser] = useState(null);  // Store user data from API response
-  const [loading, setLoading] = useState(true);  // Track loading state
-  const [error, setError] = useState(null);  // Track error state
+  const userEmail = localStorage.getItem("userEmail"); // Get the email from localStorage
+  const [user, setUser] = useState(null); // Store user data from API response
+  const [loading, setLoading] = useState(true); // Track loading state
+  const [error, setError] = useState(null); // Track error state
 
   // Fetch user data when the component is mounted
   useEffect(() => {
-    if (userEmail) {    
-      axios.get(`http://localhost:5000/userprofile/profile/${userEmail}`)
-        .then(response => {   
-          setUser(response.data);
-          setLoading(false);  // Stop loading once data is fetched
-        })
-        .catch(error => {
-          console.error('Error fetching user data:', error);
-          setLoading(false);  // Stop loading in case of error
-          setError('Failed to fetch user data. Please try again later.'); // Set error state
-        });
-    } else {
-      setError('User email is not available.');
-      setLoading(false);
-    }
-  }, [userEmail]);  
+    const fetchUser = async () => {
+      if (!userEmail) {
+        setError("User email is not available.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await API.get(`/userprofile/profile/${userEmail}`);
+
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setError("Failed to fetch user data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [userEmail]);
 
   const capitalizeFirstLetter = (string) => {
     if (!string) return "";
@@ -37,12 +41,16 @@ const Profile = () => {
 
   // If there's an error, show an error message
   if (error) {
-    return <div className="text-center text-red-500 font-semibold">{error}</div>;
+    return (
+      <div className="text-center text-red-500 font-semibold">{error}</div>
+    );
   }
 
   // If no user data is found, show a message
   if (!user) {
-    return <div className="text-center text-gray-500">No user data available</div>;
+    return (
+      <div className="text-center text-gray-500">No user data available</div>
+    );
   }
 
   return (
@@ -51,9 +59,10 @@ const Profile = () => {
         {/* User Info */}
         <div className="text-center">
           <h2 className="text-3xl font-semibold text-gray-800">
-            Hello, {user.username ? capitalizeFirstLetter(user.username) : "User"}
+            Hello,{" "}
+            {user.username ? capitalizeFirstLetter(user.username) : "User"}
           </h2>
-          
+
           {/* Profile Summary Section */}
           <div className="mt-6 space-y-4 text-sm text-gray-600">
             <div className="flex justify-between">

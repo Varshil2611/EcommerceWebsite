@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import axios from "axios";
+import API from "../api/axios";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -11,7 +11,7 @@ const OrderStatusChart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/orders/status-summary");
+        const response = await API.get("/orders/status-summary");
         setOrderStatus(response.data.statusSummary || []);
       } catch (error) {
         console.error("Error fetching order status summary:", error);

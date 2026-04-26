@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import API from '../api/axios';
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]); // Store product data
@@ -12,7 +12,7 @@ const ProductManagement = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/products'); // Change to your API endpoint
+        const response = await API.get('/products'); // Change to your API endpoint
         setProducts(response.data); // Set fetched data into the state
         setLoading(false); // Set loading to false once data is fetched
       } catch (error) {
@@ -27,7 +27,7 @@ const ProductManagement = () => {
   // Delete product handler (you can modify this according to your API logic)
   const handleDelete = async (productId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/products/${productId}`); // Change to your delete API endpoint
+      await API.delete(`/products/${productId}`); // Change to your delete API endpoint
       setProducts(products.filter((product) => product._id !== productId)); // Remove deleted product from the state
       setDeleteModalOpen(false); // Close the modal after deletion
     } catch (error) {
@@ -74,7 +74,7 @@ const ProductManagement = () => {
               <tr key={product._id} className="border-t">
                 <td className="px-6 py-3">
                   {/* Display image */}
-                  <img src={`http://localhost:5000/uploads/${product.image}`} alt={product.name} className="w-30 h-20 object-cover" />
+                  <img src={product.image} alt={product.name} className="w-30 h-20 object-cover" />
                 </td>
                 <td className="px-6 py-3">{product.name}</td>
                 <td className="px-6 py-3">${product.price}</td>

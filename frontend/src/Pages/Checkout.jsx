@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { ShopContext } from '../Context/ShopContext';
 import { FaPaypal, FaMoneyBillWave } from 'react-icons/fa';
-import axios from 'axios';
+
 import { useNavigate } from 'react-router-dom';  // Import useNavigate
+import API from '../api/axios';
 
 const CheckoutPage = () => {
   const { cart, currency, deliveryfee } = useContext(ShopContext);
@@ -38,7 +39,7 @@ const CheckoutPage = () => {
   // Fetch user data on mount
   useEffect(() => {
     if (userEmail) {
-      axios.get(`http://localhost:5000/profile/${userEmail}`)
+      API.get(`/profile/${userEmail}`)
         .then(response => {
           setUser(response.data);
           console.log("User data from Checkout Page",response.data);
@@ -73,7 +74,7 @@ const CheckoutPage = () => {
   
     try {
       if (paymentMethod === 'cash') {
-        const response = await axios.post('http://localhost:5000/orders/placeorder', orderData);
+        const response = await API.post('/orders/placeorder', orderData);
         if (response.status === 200) {
           setShowSuccessNotification(true);
           setTimeout(() => {
@@ -82,7 +83,7 @@ const CheckoutPage = () => {
           }, 2000);
         }
       } else if (paymentMethod === 'paypal') {
-        const stripeRes = await axios.post('http://localhost:5000/stripe/create-checkout-session', {
+        const stripeRes = await API.post('/stripe/create-checkout-session', {
           items: orderData.items,
           userId: orderData.user,
           shippingDetails: orderData.shippingDetails,

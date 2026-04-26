@@ -1,25 +1,28 @@
-import { useState } from 'react';
-import axios from 'axios';
-
+import { useState } from "react";
+import "react-toastify/dist/ReactToastify.css";
+import API from "../api/axios.js";
 const AddProductForm = () => {
   const [productData, setProductData] = useState({
-    name: '',
-    description: '',
-    price: '',
+    name: "",
+    description: "",
+    price: "",
     image: null,
-    category: '',
-    subCategory: '',
-    sizes: ['S', 'M', 'L', 'XL'], 
-    selectedSizes: [], 
+    category: "",
+    subCategory: "",
+    sizes: ["S", "M", "L", "XL"],
+    selectedSizes: [],
     bestseller: false,
   });
+
+  // ✅ NEW: loading state
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
 
     setProductData((prevData) => {
-      if (type === 'checkbox') {
-        if (name === 'sizes') {
+      if (type === "checkbox") {
+        if (name === "sizes") {
           const updatedSizes = checked
             ? [...prevData.selectedSizes, value]
             : prevData.selectedSizes.filter((size) => size !== value);
@@ -30,7 +33,7 @@ const AddProductForm = () => {
         }
       }
 
-      if (type === 'file') {
+      if (type === "file") {
         return { ...prevData, [name]: files[0] };
       }
 
@@ -41,49 +44,56 @@ const AddProductForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // ✅ prevent multiple clicks
+    if (loading) return;
+
     if (!productData.name || !productData.description || !productData.price) {
-      alert('Please fill in all required fields.');
+      alert("Please fill in all required fields.");
       return;
     }
 
-    // Create a new FormData instance
+    setLoading(true); // ✅ start loading
+
     const formData = new FormData();
 
-    // Append product details to formData
-    formData.append('name', productData.name);
-    formData.append('description', productData.description);
-    formData.append('price', productData.price);
-    formData.append('category', productData.category);
-    formData.append('subCategory', productData.subCategory);
-    formData.append('bestseller', productData.bestseller);
-    formData.append('sizes', JSON.stringify(productData.selectedSizes));  // sizes as a stringified array
+    formData.append("name", productData.name);
+    formData.append("description", productData.description);
+    formData.append("price", productData.price);
+    formData.append("category", productData.category);
+    formData.append("subCategory", productData.subCategory);
+    formData.append("bestseller", productData.bestseller);
+    formData.append("sizes", JSON.stringify(productData.selectedSizes));
+
     if (productData.image) {
-      formData.append('image', productData.image);  // Append the image file
+      formData.append("image", productData.image);
     }
 
     try {
-      // Send formData as multipart/form-data
-      const response = await axios.post('http://localhost:5000/api/products', formData, {
+      await API.post("/products", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',  // Important to use multipart/form-data for file upload
+          "Content-Type": "multipart/form-data",
         },
       });
-      alert('Product added successfully!');
 
+      alert("Product Added Successfully!");
+
+      // reset form
       setProductData({
-        name: '',
-        description: '',
-        price: '',
+        name: "",
+        description: "",
+        price: "",
         image: null,
-        category: '',
-        subCategory: '',
-        sizes: ['S', 'M', 'L', 'XL'], 
+        category: "",
+        subCategory: "",
+        sizes: ["S", "M", "L", "XL"],
         selectedSizes: [],
         bestseller: false,
       });
     } catch (error) {
-      console.error('Error adding product:', error);
-      alert('Error adding product.');
+      console.error("Error adding product:", error);
+      alert("Error adding product.");
+    } finally {
+      setLoading(false); // ✅ always reset
     }
   };
 
@@ -92,11 +102,15 @@ const AddProductForm = () => {
       <h2 className="text-2xl font-bold mb-6">Add New Product</h2>
 
       <form onSubmit={handleSubmit} encType="multipart/form-data">
-
         {/* Product Name & Description */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label htmlFor="name" className="block text-gray-700 font-medium mb-2">Product Name</label>
+            <label
+              htmlFor="name"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Product Name
+            </label>
             <input
               type="text"
               id="name"
@@ -109,7 +123,12 @@ const AddProductForm = () => {
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-gray-700 font-medium mb-2">Description</label>
+            <label
+              htmlFor="description"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Description
+            </label>
             <textarea
               id="description"
               name="description"
@@ -125,7 +144,12 @@ const AddProductForm = () => {
         {/* Price & Image */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label htmlFor="price" className="block text-gray-700 font-medium mb-2">Price</label>
+            <label
+              htmlFor="price"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Price
+            </label>
             <input
               type="number"
               id="price"
@@ -138,7 +162,12 @@ const AddProductForm = () => {
           </div>
 
           <div>
-            <label htmlFor="image" className="block text-gray-700 font-medium mb-2">Product Image</label>
+            <label
+              htmlFor="image"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Product Image
+            </label>
             <input
               type="file"
               id="image"
@@ -153,7 +182,12 @@ const AddProductForm = () => {
         {/* Category & Subcategory */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
-            <label htmlFor="category" className="block text-gray-700 font-medium mb-2">Category</label>
+            <label
+              htmlFor="category"
+              className="block text-gray-700 font-medium mb-2"
+            >
+              Category
+            </label>
             <select
               id="category"
               name="category"
@@ -171,7 +205,12 @@ const AddProductForm = () => {
 
           {productData.category && (
             <div>
-              <label htmlFor="subCategory" className="block text-gray-700 font-medium mb-2">Subcategory</label>
+              <label
+                htmlFor="subCategory"
+                className="block text-gray-700 font-medium mb-2"
+              >
+                Subcategory
+              </label>
               <select
                 id="subCategory"
                 name="subCategory"
@@ -192,15 +231,19 @@ const AddProductForm = () => {
         {/* Sizes */}
         {productData.sizes && productData.sizes.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Select Size:</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+              Select Size:
+            </h3>
             <div className="grid grid-cols-4 gap-2">
               {productData.sizes.map((size, index) => (
                 <label
                   key={index}
                   className={`flex items-center justify-center p-3 border rounded cursor-pointer transition-colors
-                    ${productData.selectedSizes.includes(size) 
-                      ? 'border-gray-800 bg-gray-50 text-gray-700' 
-                      : 'border-gray-200 hover:border-blue-200'}`}
+                    ${
+                      productData.selectedSizes.includes(size)
+                        ? "border-gray-800 bg-gray-50 text-gray-700"
+                        : "border-gray-200 hover:border-blue-200"
+                    }`}
                 >
                   <input
                     type="checkbox"
@@ -219,7 +262,10 @@ const AddProductForm = () => {
 
         {/* Bestseller */}
         <div className="mb-4">
-          <label htmlFor="bestseller" className="flex items-center text-gray-700 font-medium">
+          <label
+            htmlFor="bestseller"
+            className="flex items-center text-gray-700 font-medium"
+          >
             <input
               type="checkbox"
               id="bestseller"
@@ -236,9 +282,10 @@ const AddProductForm = () => {
         <div className="mt-6">
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-2 bg-gray-800 text-white font-bold rounded"
           >
-            Add Product
+            {loading ? "Adding..." : "Add Product"}
           </button>
         </div>
       </form>

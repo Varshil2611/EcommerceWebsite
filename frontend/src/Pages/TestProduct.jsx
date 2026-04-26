@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { ShopContext } from '../Context/ShopContext';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import API from '../api/axios';
 
 const TestProduct = () => {
-  // State for holding products, loading state, and error state
+  
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,22 +12,22 @@ const TestProduct = () => {
   const [subCategoryFilter, setSubCategoryFilter] = useState([]);
   const [priceFilter, setPriceFilter] = useState([]);
 
-// Fetch product data from the API
 useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/products'); // Change to your API endpoint
+        const response = await API.get('/products'); // Change to your API endpoint
         setProducts(response.data);
-        console.log(response.data); // Set fetched data into the state
-        setLoading(false); // Set loading to false once data is fetched
+        console.log(response.data); 
+        setLoading(false); 
       } catch (error) {
         console.error('Error fetching products:', error);
+        setError("Error",error);
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, []);// Empty dependency array to run once on mount
+  }, []);
 
   const handleFilterChange = (filterType, value) => {
     const updatedFilter = filterType === 'category' ? [...categoryFilter] :
@@ -50,7 +49,7 @@ useEffect(() => {
     }
   };
 
-  // Filtered products based on selected filters
+  
   const filteredProducts = products.filter((product) => {
     const isCategoryMatch = categoryFilter.length === 0 || categoryFilter.includes(product.category);
     const isSubCategoryMatch = subCategoryFilter.length === 0 || subCategoryFilter.includes(product.subCategory);
@@ -136,7 +135,7 @@ useEffect(() => {
               <Link to={`/product/${product._id}`}>
                 <img
                   className="w-full h-64 object-cover rounded-lg mb-4"
-                  src={`http://localhost:5000/uploads/${product.image}`}
+                  src={product.image}
                   alt={product.name}
                 />
               </Link>

@@ -1,39 +1,42 @@
-import express from 'express';
-import Stripe from 'stripe';
-import Order from '../Models/orderModel.js';
-import User from '../Models/userModel.js';  
-import Counter from '../Models/counterModel.js'; 
+import express from "express";
+import Stripe from "stripe";
+import Order from "../Models/orderModel.js";
+import User from "../Models/userModel.js";
+import Counter from "../Models/counterModel.js";
 
 export const createOrder = async (req, res) => {
   try {
-    const { user, items, shippingDetails, paymentMethod, totalAmount } = req.body;
+    const { user, items, shippingDetails, paymentMethod, totalAmount } =
+      req.body;
 
     if (!user || !items || !shippingDetails || !paymentMethod || !totalAmount) {
-      return res.status(400).json({ message: 'All fields are required' });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     const existingUser = await User.findById(user);
     if (!existingUser) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Check if Counter is retrieved correctly
     const counter = await Counter.findOneAndUpdate(
-      { name: 'orderId' },
+      { name: "orderId" },
       { $inc: { seq: 1 } },
-      { new: true, upsert: true }
+      { new: true, upsert: true },
     );
 
     if (!counter) {
-      return res.status(500).json({ message: 'Counter not found or failed to update' });
+      return res
+        .status(500)
+        .json({ message: "Counter not found or failed to update" });
     }
 
-    console.log('Counter after update:', counter); // Debugging log
+    console.log("Counter after update:", counter); // Debugging log
 
     const newOrder = new Order({
-      orderId: counter.seq, 
+      orderId: counter.seq,
       user,
-      items: items.map(item => ({
+      items: items.map((item) => ({
         productId: item.productId,
         name: item.name,
         price: item.price,
@@ -49,46 +52,50 @@ export const createOrder = async (req, res) => {
     const savedOrder = await newOrder.save();
 
     res.status(200).json({
-      message: 'Order placed successfully!',
+      message: "Order placed successfully!",
       order: savedOrder,
     });
   } catch (error) {
-    console.error('Error creating order:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    console.error("Error creating order:", error);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
 export const getUserOrders = async (req, res) => {
   try {
-    const { userId } = req.params;  
-   
+    const { userId } = req.params;
+
     if (!userId) {
-      return res.status(400).json({ message: 'User ID is required' });
+      return res.status(400).json({ message: "User ID is required" });
     }
-    
+
     const existingUser = await User.findById(userId);
     if (!existingUser) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
 
     if (orders.length === 0) {
-      return res.status(404).json({ message: 'No orders found for this user' });
+      return res.status(404).json({ message: "No orders found for this user" });
     }
 
     res.status(200).json({
-      message: 'Orders fetched successfully!',
+      message: "Orders fetched successfully!",
       orders,
     });
   } catch (error) {
-    console.error('Error fetching orders:', error); 
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    console.error("Error fetching orders:", error);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 
 export const getAllOrders = async (req, res) => {
-  try { 
+  try {
     const orders = await Order.find({}).sort({ createdAt: -1 });
 
     const totalOrders = await Order.countDocuments(); // Count total orders
@@ -98,62 +105,66 @@ export const getAllOrders = async (req, res) => {
       {
         $group: {
           _id: null,
-          totalRevenue: { $sum: "$totalAmount" } // Summing all totalAmount
-        }
-      }
+          totalRevenue: { $sum: "$totalAmount" }, // Summing all totalAmount
+        },
+      },
     ]);
 
-    res.json({ 
-      totalOrders, 
-      totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].totalRevenue : 0, 
-      orders 
+    res.json({
+      totalOrders,
+      totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].totalRevenue : 0,
+      orders,
     });
-  } 
-  catch (error) {
-    res.status(500).json({ message: 'Error fetching orders', error: error.message });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching orders", error: error.message });
   }
 };
 
-export const StatusChange =  async (req, res) => {
+export const StatusChange = async (req, res) => {
   const { orderId } = req.params;
-  const { status } = req.body;  
+  const { status } = req.body;
 
   try {
-  
-    const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
+    const order = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true },
+    );
 
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
 
-   
     res.status(200).json(order);
   } catch (error) {
-    console.error('Error updating order status:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error updating order status:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-
 export const getUserProfile = async (req, res) => {
-  const userEmail = req.params.email;  
+  const userEmail = req.params.email;
   try {
-    
-    const user = await User.findOne({ email: userEmail });    
+    const user = await User.findOne({ email: userEmail });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }    
-    const orders = await Order.find({ user: user._id });  
+      return res.status(404).json({ message: "User not found" });
+    }
+    const orders = await Order.find({ user: user._id });
     const totalOrders = orders.length;
-    const totalSpend = orders.reduce((acc, order) => acc + order.totalAmount, 0);
+    const totalSpend = orders.reduce(
+      (acc, order) => acc + order.totalAmount,
+      0,
+    );
     res.json({
-      username: user.username, 
+      username: user.username,
       totalOrders,
       totalSpend,
     });
   } catch (error) {
-    console.error('Error fetching user profile:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -161,69 +172,34 @@ export const getOrdersStatusSummary = async (req, res) => {
   try {
     const statusSummary = await Order.aggregate([
       {
-        $match: { status: { $exists: true, $ne: null } } // Ensure status exists and is not null
+        $match: { status: { $exists: true, $ne: null } }, // Ensure status exists and is not null
       },
       {
         $group: {
           _id: "$status", // Group by status field in orders collection
-          count: { $sum: 1 } // Count orders per status
-        }
+          count: { $sum: 1 }, // Count orders per status
+        },
       },
       {
         $project: {
           status: "$_id",
           count: 1,
-          _id: 0
-        }
-      }
+          _id: 0,
+        },
+      },
     ]);
 
     res.json({ statusSummary });
+    console.log(statusSummary);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching order status summary", error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error fetching order status summary",
+        error: error.message,
+      });
   }
 };
 
-
 const router = express.Router();
-const stripe = new Stripe('sk_test_51REqJ6EIwWeSNeXGgWC0TNKqJjY5FLr6dE4ZESmU4szKsAMvI30PtzRWJr3QRlWIxcKINWRKYUsFZwIHd0z43anY00pP4A9JZV');
-
-router.post('/create-checkout-session', async (req, res) => {
-  try {
-    const { items } = req.body;
-
-    if (!items || !Array.isArray(items)) {
-      return res.status(400).json({ error: 'Invalid items in request' });
-    }
-
-    console.log("Items from frontend:", items); // Debug
-
-    const line_items = items.map(item => ({
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: item.name || 'No Name',
-        },
-        unit_amount: Math.round(item.price * 100), // Convert to cents
-      },
-      quantity: item.quantity,
-    }));
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items,
-      mode: 'payment',
-      success_url: 'http://localhost:5173/thankyou',
-      cancel_url: 'http://localhost:5173/checkout',
-    });
-
-    console.log("Stripe session created:", session.url);
-    res.json({ url: session.url });
-  } catch (error) {
-    console.error("Stripe session error:", error); // 💥 This is what we want!
-    res.status(500).json({ error: 'Failed to create checkout session' });
-  }
-});
-
-
 export default router;

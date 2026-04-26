@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { ShopContext } from '../Context/ShopContext';
 import { Link } from 'react-router-dom';
 
@@ -31,7 +31,7 @@ const LatestCollection = () => {
             <Link to={`/product/${product._id}`}>
               <img
                 className="w-full h-64 object-cover rounded-lg mb-4"
-                src={`http://localhost:5000/uploads/${product.image}`}
+                src={product.image}
                 alt={product.name}
               />
             </Link>

@@ -1,4 +1,5 @@
-import Product from '../Models/productModel.js';
+import Product from "../Models/productModel.js";
+import cloudinary from "../Config/cloudinary.js";
 
 // Get all products
 export const getAllProducts = async (req, res) => {
@@ -6,7 +7,9 @@ export const getAllProducts = async (req, res) => {
     const products = await Product.find();
     res.json(products);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching products', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching products", error: error.message });
   }
 };
 
@@ -24,11 +27,6 @@ export const getProductById = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Add base URL to the image path
-    if (product.image) {
-      product.image = `${req.protocol}://${req.get('host')}/uploads/${product.image}`;
-    }
-
     res.json(product);
   } catch (error) {
     console.error("Error fetching product:", error);
@@ -41,10 +39,26 @@ export const getProductById = async (req, res) => {
 
 // Create a new product
 export const createProduct = async (req, res) => {
-  const { name, description, price, category, subCategory, sizes, bestseller } = req.body;
-  const image = req.file ? req.file.filename : null;
-
   try {
+    const { name, description, price, category, subCategory, sizes, bestseller } = req.body;
+
+    let image = null;
+
+    if (req.file) {
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "products" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(req.file.buffer);
+      });
+
+      image = uploadResult.secure_url;
+    }
+
     const newProduct = new Product({
       name,
       description,
@@ -52,21 +66,30 @@ export const createProduct = async (req, res) => {
       category,
       subCategory,
       image,
-      sizes: JSON.parse(sizes), // Parse the stringified array
+      sizes: JSON.parse(sizes),
       bestseller,
     });
 
     await newProduct.save();
-    res.status(201).json({ message: 'Product created successfully', product: newProduct });
+
+    res.status(201).json({
+      message: "Product created successfully",
+      product: newProduct,
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error creating product', error: error.message });
+    res.status(500).json({
+      message: "Error creating product",
+      error: error.message,
+    });
   }
 };
 
 // Update a product
 export const updateProduct = async (req, res) => {
-  const { name, description, price, category, subCategory, sizes, bestseller } = req.body;
-  const image = req.file ? req.file.filename : undefined;
+  const { name, description, price, category, subCategory, sizes, bestseller } =
+    req.body;
+  const image = req.file ? req.file.path : undefined;
 
   const updatedProductData = {
     name,
@@ -83,13 +106,19 @@ export const updateProduct = async (req, res) => {
   }
 
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, updatedProductData, { new: true });
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      updatedProductData,
+      { new: true },
+    );
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: "Product not found" });
     }
-    res.json({ message: 'Product updated successfully', product });
+    res.json({ message: "Product updated successfully", product });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating product', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating product", error: error.message });
   }
 };
 
@@ -98,11 +127,13 @@ export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: "Product not found" });
     }
-    res.json({ message: 'Product deleted successfully' });
+    res.json({ message: "Product deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting product', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error deleting product", error: error.message });
   }
 };
 
@@ -112,7 +143,8 @@ export const getTotalProducts = async (req, res) => {
     const totalProducts = await Product.countDocuments();
     res.json({ totalProducts });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching total products", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching total products", error: error.message });
   }
 };
-
