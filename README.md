@@ -6,9 +6,8 @@ A full-stack ecommerce web application built with React, Node.js, Express, and M
 
 ## 🌐 Live Demo
 
-| | URL |
-|---|---|
-| **Frontend** | [ecommerce-website-six-azure.vercel.app](https://ecommerce-website-six-azure.vercel.app) |
+ | URL |
+ [ecommerce-website-six-azure.vercel.app](https://ecommerce-website-six-azure.vercel.app) |
 
 ---
 
@@ -20,6 +19,12 @@ A full-stack ecommerce web application built with React, Node.js, Express, and M
 | **Email** | `test@gmail.com` |
 | **Password** | `test` |
 
+### Admin Account
+| Field | Value |
+|---|---|
+| **Email** | `admin@gmail.com` |
+| **Password** | `admin` |
+
 > ⚠️ Please do not change the password of test accounts.
 
 ---
@@ -28,7 +33,7 @@ A full-stack ecommerce web application built with React, Node.js, Express, and M
 
 ### Customer
 - Browse products by category
-- Search and filter products
+- Search and filter products with debouncing 
 - Add to cart and wishlist
 - View order history and status
 - User profile management
@@ -93,6 +98,8 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 PORT=5000
+ADMIN_EMAIL=your_admin_password
+ADMIN_PASSWORD=your_admin_password
 ```
 
 ```bash
@@ -148,7 +155,7 @@ EcommerceWebsite/
 <img width="1919" height="628" alt="image" src="https://github.com/user-attachments/assets/51712bb9-1b9c-4c42-8c1f-c9197424f6e2" />
 
 ### Collection Page
-<img width="1919" height="967" alt="image" src="https://github.com/user-attachments/assets/235a3b86-4594-4ec8-88b9-d64514b2a09e" />
+<img width="1914" height="971" alt="image" src="https://github.com/user-attachments/assets/2d84d61a-70f2-4b6a-aa45-af81ab17f6d1" />
 
 ### Contact Page
 <img width="1919" height="968" alt="image" src="https://github.com/user-attachments/assets/bf573972-24a3-4037-a125-adb6397ebfde" />
@@ -166,7 +173,7 @@ EcommerceWebsite/
 <img width="1919" height="970" alt="image" src="https://github.com/user-attachments/assets/6c9be820-4dc5-44bc-a9e2-78f9115c1813" />
 
 ### Products Management
-<img width="1919" height="969" alt="image" src="https://github.com/user-attachments/assets/d8142a8b-618b-480a-9753-9fedb676c15a" />
+<img width="1918" height="971" alt="image" src="https://github.com/user-attachments/assets/ad062028-af42-428b-88fd-d0a990c75950" />
 
 ### Orders Management
 <img width="1919" height="939" alt="image" src="https://github.com/user-attachments/assets/6a190b06-9f41-45f4-9079-603cbce96032" />
@@ -179,7 +186,6 @@ EcommerceWebsite/
 - 🔔 Real-time order notifications using Socket.io
 - 📧 Email confirmation after order placement
 - ⭐ Product reviews and ratings
-- 🔍 Advanced search with filters
 - 📱 Mobile app using React Native
 
 ---
