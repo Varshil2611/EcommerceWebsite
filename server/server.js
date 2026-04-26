@@ -20,7 +20,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",          
-    "https://your-app.vercel.app",    
+    "https://ecommerce-website-six-azure.vercel.app",    
   ],
   credentials: true
 }));
