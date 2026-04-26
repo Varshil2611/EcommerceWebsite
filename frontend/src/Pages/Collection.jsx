@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import API from "../api/axios.js";
 
 const LatestCollection = () => {
   const [products, setProducts] = useState([]);
@@ -10,28 +11,27 @@ const LatestCollection = () => {
   const [subCategoryFilter, setSubCategoryFilter] = useState([]);
   const [priceFilter, setPriceFilter] = useState([]);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/products");
-        const data = await response.json();
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const response = await API.get("/products");
+      const data = response.data;
 
-        // ✅ validation: ensure array
-        if (!Array.isArray(data)) {
-          throw new Error("Invalid product data");
-        }
-
-        setProducts(data);
-      } catch (err) {
-        setError("Failed to fetch products");
-        console.error(err);
-      } finally {
-        setLoading(false);
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid product data");
       }
-    };
 
-    fetchProducts();
-  }, []);
+      setProducts(data);
+    } catch (err) {
+      setError("Failed to fetch products");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProducts();
+}, []);
 
   const handleFilterChange = (filterType, value) => {
     const updatedFilter =
