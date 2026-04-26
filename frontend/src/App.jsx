@@ -25,7 +25,6 @@ import Profile from './Pages/Profile';
 import PrivateRoute from './Context/PrivateRoute';
 import ThankYouPage from './Pages/ThankYouPage';
 import TestProduct from './Pages/TestProduct';
-import Chatbot from './Pages/Chatbot';
 import NotFound from './Pages/NotFound';
 import { Toaster } from "react-hot-toast";
 
@@ -87,9 +86,6 @@ const App = () => {
         {/* 404 */}
         <Route path='*' element={<NotFound />} />
       </Routes>
-
-      {/* Chatbot only for user */}
-      {!isAdminRoute && <Chatbot />}
 
     </ShopContextProvider>
   );
