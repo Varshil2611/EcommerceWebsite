@@ -9,124 +9,141 @@ const Register = () => {
     email: "",
     password: "",
   });
-
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [registerError, setRegisterError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setRegisterError("");
   };
 
-  const navigate = useNavigate();
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent page refresh
+    e.preventDefault();
+    setIsLoading(true);
+    setRegisterError("");
 
     try {
       const response = await API.post("/register", formData);
-      console.log("Submitted Register Data -", response.data); 
-      navigate('/');
-      
-      // You could redirect the user to login page or reset the form here
-      // Example: window.location.href = '/login'; or reset formData
+      console.log("Registered:", response.data);
+      navigate("/");
     } catch (error) {
-      console.error("Error during registration:", error.response?.data || error.message); // Handle errors
+      setRegisterError("Registration failed. Please try again.");
+      console.error("Error during registration:", error.response?.data || error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
-  };
-
   return (
-    <div>
-      <div className="max-w-4xl mx-auto p-6">
-        <h1 className="text-4xl font-extrabold text-center mb-8 text-gray-800">
-          Register
-        </h1>
-        <form onSubmit={handleSubmit}>
-          <div className="ml-10 mr-10 grid grid-cols-1 md:grid-cols-1 gap-0 mb-4">
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Enter Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                required
-              />
-            </div>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="bg-white border-2 border-black p-10 w-96 shadow-lg">
 
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                required
-              />
-            </div>
+        {/* Header */}
+        <h1 className="text-4xl font-extrabold text-gray-800 mb-2 text-center">Register</h1>
+        <p className="text-sm text-gray-400 text-center mb-8">Create your account to get started</p>
 
+        {/* Register Error */}
+        {registerError && (
+          <div className="mb-4 px-4 py-2 bg-red-50 border-l-4 border-red-500 text-red-600 text-sm">
+            {registerError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Username */}
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="Your name"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+              required
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="you@example.com"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+              required
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
             <div className="relative">
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
               <input
                 type={passwordVisible ? "text" : "password"}
                 id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="••••••••"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black pr-10"
                 required
               />
               <span
-                onClick={togglePasswordVisibility}
-                className="absolute right-4 top-1/2 mt-3 transform -translate-y-1/2 cursor-pointer"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-700"
               >
-                {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                {passwordVisible ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
               </span>
             </div>
           </div>
 
-          <div className="text-center mb-4">
+          {/* Submit */}
+          <div className="pt-2">
             <button
               type="submit"
-              className="px-6 py-3 bg-black text-white font-medium rounded-md"
+              disabled={isLoading}
+              className={`w-full px-6 py-3 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors duration-200 flex items-center justify-center gap-2 ${
+                isLoading ? "cursor-not-allowed opacity-60" : ""
+              }`}
             >
-              Submit
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Create Account"
+              )}
             </button>
           </div>
-
-          <div className="text-center">
-            <span className="text-gray-500">
-              Have an Account?{" "}
-              <Link to="/" className="text-indigo-500 hover:underline">
-                Login
-              </Link>
-            </span>
-          </div>
         </form>
+
+        {/* Login Link */}
+        <div className="text-center mt-6">
+          <span className="text-sm text-gray-500">
+            Already have an account?{" "}
+            <Link to="/" className="text-gray-800 font-semibold hover:underline">
+              Sign In
+            </Link>
+          </span>
+        </div>
+
       </div>
     </div>
   );

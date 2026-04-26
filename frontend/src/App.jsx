@@ -27,6 +27,7 @@ import ThankYouPage from './Pages/ThankYouPage';
 import TestProduct from './Pages/TestProduct';
 import NotFound from './Pages/NotFound';
 import { Toaster } from "react-hot-toast";
+import { AdminRoute } from "./Components/ProtectedRoute"; 
 
 const AdminLayout = ({ children }) => {
   return (
@@ -43,21 +44,18 @@ const App = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
 
-  // ✅ Initialize AOS
   useEffect(() => {
     AOS.init({
       duration: 800,
-      once: true, // ✅ animation runs once
+      once: true,
     });
   }, []);
 
   return (
     <ShopContextProvider>
 
-      {/* ✅ Global Toast */}
       <Toaster position="top-right" />
 
-      {/* Navbar only for user routes */}
       {!isAdminRoute && <Navbar />}
 
       <Routes>
@@ -74,14 +72,20 @@ const App = () => {
         <Route path='/product/:productId' element={<ProductDetail />} />
         <Route path='/testproduct' element={<TestProduct />} />
 
-        {/* Protected Routes */}
+        {/* User Protected Routes */}
         <Route path='/checkout' element={<PrivateRoute><Checkout /></PrivateRoute>} />
         <Route path='/orders' element={<PrivateRoute><Orders /></PrivateRoute>} />
         <Route path='/profile' element={<PrivateRoute><Profile /></PrivateRoute>} />
         <Route path='/thankyou' element={<PrivateRoute><ThankYouPage /></PrivateRoute>} />
 
-        {/* Admin */}
-        <Route path="/admin/*" element={<AdminLayout><AdminRoutes /></AdminLayout>} />
+        {/* ✅ Admin Protected Routes */}
+        <Route path="/admin/*" element={
+          <AdminRoute>
+            <AdminLayout>
+              <AdminRoutes />
+            </AdminLayout>
+          </AdminRoute>
+        } />
 
         {/* 404 */}
         <Route path='*' element={<NotFound />} />
