@@ -27,6 +27,7 @@ A full-stack ecommerce web application built with React, Node.js, Express, and M
 
 > ⚠️ Please do not change the password of test accounts.
 
+> 📧 You can register with any email to explore the app. For real order confirmation emails, use a valid email address.
 ---
 
 ## ✨ Features
