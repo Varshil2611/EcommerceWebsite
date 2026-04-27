@@ -1,4 +1,4 @@
-# 🛍️ Ecommerce Website — Full Stack MERN App
+# 🛍️ Ecommerce Website - Full Stack MERN App
 
 A full-stack ecommerce web application built with React, Node.js, Express, and MongoDB. Features include product browsing, cart management, order tracking and admin dashboard.
 
@@ -37,8 +37,9 @@ A full-stack ecommerce web application built with React, Node.js, Express, and M
 - Add to cart and wishlist
 - View order history and status
 - User profile management
-
+- Confirmation Email After Successfully Placing the Order
 ### Admin
+
 - Dashboard with sales overview
 - Order status chart
 - Product management (Add, Edit, Delete)
@@ -63,11 +64,12 @@ A full-stack ecommerce web application built with React, Node.js, Express, and M
 - JWT Authentication
 - Cloudinary (image upload)
 - Multer
-
+- 
 ### Deployment
 - Frontend → Vercel
 - Backend → Render
 - Database → MongoDB Atlas
+- Resend (Email)
 
 ---
 
@@ -100,6 +102,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 PORT=5000
 ADMIN_EMAIL=your_admin_password
 ADMIN_PASSWORD=your_admin_password
+RESEND_API_KEY=your_resend_api_key
 ```
 
 ```bash
@@ -169,6 +172,10 @@ EcommerceWebsite/
 ### Order Page
 <img width="1919" height="967" alt="image" src="https://github.com/user-attachments/assets/8eb2a1f6-9a85-4109-b30e-904aa796b73d" />
 
+#### Order Confirmation Email After Successfull Login
+<img width="1788" height="734" alt="image" src="https://github.com/user-attachments/assets/a30e7818-187c-4cca-b481-5e69294c9479" />
+<img width="1768" height="229" alt="image" src="https://github.com/user-attachments/assets/f46d498c-bc73-4c86-a1c0-68d6ccf8fcfc" />
+
 ### Admin Panel (Dashboard)
 <img width="1919" height="970" alt="image" src="https://github.com/user-attachments/assets/6c9be820-4dc5-44bc-a9e2-78f9115c1813" />
 
@@ -184,7 +191,6 @@ EcommerceWebsite/
 
 - 💳 Razorpay / Stripe payment integration
 - 🔔 Real-time order notifications using Socket.io
-- 📧 Email confirmation after order placement
 - ⭐ Product reviews and ratings
 - 📱 Mobile app using React Native
 
