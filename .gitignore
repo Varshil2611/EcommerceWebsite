@@ -1,4 +1,3 @@
-# Create/edit .gitignore in root (Ecomm folder)
 node_modules
 package-lock.json
 server/node_modules
