@@ -39,8 +39,10 @@ const ShopContextProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+  if (cart.length > 0) {
     localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+  }
+}, [cart]);
 
   const addToCart = (product, selectedSize, quantity) => {
     setCart((prevCart) => {

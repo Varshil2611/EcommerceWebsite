@@ -96,8 +96,3 @@ export const getCurrentUser = async (req, res) => {
     res.status(500).json({ message: 'Error fetching user data', error: error.message });
   }
 };
-
-
-export const logoutUser = (req, res) => {
-  res.json({ message: 'User logged out successfully' });
-};

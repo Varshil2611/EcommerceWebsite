@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import API from '../api/axios.js';
 import { useParams, useNavigate } from "react-router-dom";
 
 const EditProductForm = () => {
@@ -23,7 +23,7 @@ const EditProductForm = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/products/${id}`);
+        const response = await API.get(`/products/${id}`);
         const data = response.data;
 
         setProduct({
@@ -108,11 +108,11 @@ const EditProductForm = () => {
         formData.append("image", product.image);
       }
 
-      await axios.put(`http://localhost:5000/api/products/${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+    await API.put(`/products/${id}`, formData, {
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+});
 
       alert("Product updated successfully!");
       navigate("/admin/products");
